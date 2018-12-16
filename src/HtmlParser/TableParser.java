@@ -22,11 +22,16 @@ import static DBConnection.ConnectionManager.insert;
 
 public class TableParser {
 
-
-    //Dette er parser metoden som tage imod en string med navnet json
+    /**
+     *
+     * @param json
+     * @throws IndexOutOfBoundsException
+     *  Dette er parser metoden som tage imod en string med navnet json
+     */
     public static void parse(String json) throws IndexOutOfBoundsException {
 
         //Document er en Jsoup understøttet variabel type
+
         Document doc;
 
         //doc assignes til at være den parsede json string
@@ -40,13 +45,21 @@ public class TableParser {
         //her fortæller vi programmet at der er en ny række for hver gang den støder på tr
         Elements rows = table.select("tr");
 
-        List<TableTennisPlayer> players = new ArrayList<>();
+        // her instantieres en playerliste ud fra class'en TTplayer af typen arraylist
+        List<TableTennisPlayer> playerList = new ArrayList<>();
 
+        //her declares et nyt object kaldet player ud fra TTPlayer class'en
         TableTennisPlayer player;
 
+        //Her fjerner jeg lige første og sidste række i tabellen da de ikke indeholder data jeg skal bruge
         rows.remove(0);
         rows.remove(rows.size()-1);
 
+
+        /**
+         * Dette loop opretter en ny spiller for hver række den kører igennem
+         * og for hver kolonne (td) sættes en parameter
+         */
         for(Element row :rows)
         {
             Elements columns = row.select("td");
@@ -60,13 +73,19 @@ public class TableParser {
             player.setDifference(Integer.parseInt(columns.get(5).text()));
             player.setMatches(Integer.parseInt(columns.get(6).text()));
 
-            players.add(player);
+            playerList.add(player);
 
             insert(player);
         }
     }
 
     // HTTP POST request
+
+    /**
+     * denne metode kalder på data fra bordtennisportalen, og sender dataene videre til min server
+     * @param pages
+     * @throws Exception
+     */
     public static void sendPost(int pages) throws Exception {
 
         String url = "http://bordtennisportalen.dk/SportsResults/Components/WebService1.asmx/GetRankingListPlayers";
